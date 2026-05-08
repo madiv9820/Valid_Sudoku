@@ -59,7 +59,7 @@ Rows + Columns + 3 × 3 Boxes
 If all filled cells follow the rules, return **`true`**; otherwise, return **`false`**.
 
 #### 📝 Important Notes
-- Empty cells are represented by `**"."**`
+- Empty cells are represented by **`"."`**
 - Empty cells should be ignored
 - The board may be valid even if it cannot be solved
 - You only need to check whether the current filled values follow Sudoku rules
