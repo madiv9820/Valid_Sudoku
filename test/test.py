@@ -9,7 +9,7 @@ import json
 import os
 import time
 import unittest
-from typing import List
+from typing import Dict, List
 from timeout_decorator import TimeoutError, timeout
 from source.solution import Solution
 
@@ -48,6 +48,8 @@ def _make_testcase(testcase):
         board: List[List[str]] = testcase['input']['board']
         expectedOutput: bool = testcase['output']
         description: str = testcase.get('description', 'No description provided.')
+        self._case_title = title
+        self._case_description = description
 
         # 🎬 Print a small intro card before each testcase begins.
         print('\n' + '=' * 60)
@@ -92,6 +94,7 @@ def _make_testcase(testcase):
 class TestSolution(unittest.TestCase):
     # 🎛️ Tweak this to make the test run faster or more cinematic.
     DISPLAY_DELAY_SECONDS = 2
+    CASE_RESULTS: List[Dict[str, str]] = []
 
     def setUp(self):
         # 🛠️ Each test gets a fresh solution instance to keep runs predictable.
@@ -106,18 +109,81 @@ class TestSolution(unittest.TestCase):
         return self.__solution.isValidSudoku(board=board)
 
 
+class SudokuTextTestResult(unittest.TextTestResult):
+    # 🧾 Capture each testcase outcome so we can print one final summary
+    # after the full suite finishes running.
+    def addSuccess(self, test):
+        super().addSuccess(test)
+        TestSolution.CASE_RESULTS.append(
+            {
+                'title': getattr(test, '_case_title', test._testMethodName),
+                'status': '✅ Passed',
+            }
+        )
+
+    def addFailure(self, test, err):
+        super().addFailure(test, err)
+        TestSolution.CASE_RESULTS.append(
+            {
+                'title': getattr(test, '_case_title', test._testMethodName),
+                'status': '❌ Failed',
+            }
+        )
+
+    def addError(self, test, err):
+        super().addError(test, err)
+        TestSolution.CASE_RESULTS.append(
+            {
+                'title': getattr(test, '_case_title', test._testMethodName),
+                'status': '💥 Error',
+            }
+        )
+
+    def stopTestRun(self):
+        super().stopTestRun()
+
+        print('\n' + '🧾' + '=' * 58)
+        print('📚 Valid Sudoku Final Summary')
+
+        passedCount = sum(result['status'] == '✅ Passed' for result in TestSolution.CASE_RESULTS)
+        failedCount = sum(result['status'] == '❌ Failed' for result in TestSolution.CASE_RESULTS)
+        errorCount = sum(result['status'] == '💥 Error' for result in TestSolution.CASE_RESULTS)
+        titleWidth = max(len('Test Case'), *(len(result['title']) for result in TestSolution.CASE_RESULTS))
+        statusWidth = max(len('Status'), *(len(result['status']) for result in TestSolution.CASE_RESULTS))
+
+        divider = f"+-{'-' * titleWidth}-+-{'-' * statusWidth}-+"
+        header = f"| {'Test Case'.ljust(titleWidth)} | {'Status'.ljust(statusWidth)} |"
+
+        print(divider)
+        print(header)
+        print(divider)
+        for result in TestSolution.CASE_RESULTS:
+            print(f"| {result['title'].ljust(titleWidth)} | {result['status'].ljust(statusWidth)} |")
+        print(divider)
+
+        print(
+            f'🏁 Total: {len(TestSolution.CASE_RESULTS)} | '
+            f'✅ Passed: {passedCount} | '
+            f'❌ Failed: {failedCount} | '
+            f'💥 Errors: {errorCount}'
+        )
+        print('=' * 60)
+
+
 _CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 _FILE_PATH = os.path.join(_CURRENT_DIRECTORY, 'cases.json')
 
 
 with open(_FILE_PATH, mode='r', encoding='utf-8') as readFile:
+    allTestcases = json.load(readFile)
+
     # 🧪 Register every case as a standalone test so verbose mode is meaningful.
     # `setattr(...)` adds methods like `test_classic_valid_board`
     # directly onto the `TestSolution` class before the test runner starts.
-    for testcase in json.load(readFile):
+    for testcase in allTestcases:
         setattr(TestSolution, _to_test_name(testcase['title']), _make_testcase(testcase))
 
 
 if __name__ == '__main__':
     # ▶️ Verbose mode shows each generated testcase as it passes or fails.
-    unittest.main(verbosity=2)
+    unittest.main(verbosity=2, testRunner=unittest.TextTestRunner(resultclass=SudokuTextTestResult))
