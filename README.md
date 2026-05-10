@@ -127,4 +127,18 @@ Since a 3 × 3 box cannot contain duplicate digits, the board is invalid.
 - **`board.length == 9`**
 - **`board[i].length == 9`**
 - **`board[i][j]`** is a digit from **`"1"`** to **`"9"`** or **``**
+
+### 📚 Approach Notes
+
+This repository currently demonstrates two different validation strategies:
+
+- 🔍 **Brute Force Scan**
+- 📦 **Hash Set Tracking**
+
+#### ⚖️ Quick Comparison
+
+| Approach | Core Idea | Time | Space | Best Use |
+| --- | --- | --- | --- | --- |
+| [**🧠 Brute Force Scan**](docs/approach_01_brute_force.md) | Re-check row, column, and box for every filled cell | `O(9 * 9 * 9)` | `O(1)` | Simple rule-by-rule understanding |
+| [**📦 Hash Set Tracking**](docs/approach_02_hash_set.md) | Track seen digits in row, column, and box sets | `O(9 * 9)` | `O(9 * 9)` | Cleaner and faster validation |
 ---
