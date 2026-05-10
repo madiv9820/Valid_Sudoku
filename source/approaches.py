@@ -1,3 +1,7 @@
+# 🧩 This file stores the actual Sudoku-validation strategies.
+# Each method here implements a different way to check whether the
+# board follows the row, column, and 3x3-box rules.
+
 from typing import List, Set
 
 class Approaches:
