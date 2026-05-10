@@ -126,7 +126,7 @@ Since a 3 × 3 box cannot contain duplicate digits, the board is invalid.
 #### 📊 Constraints
 - **`board.length == 9`**
 - **`board[i].length == 9`**
-- **`board[i][j]`** is a digit from **`"1"`** to **`"9"`** or **``**
+- **`board[i][j]`** is a digit from **`"1"`** to **`"9"`** or **`"."`**
 
 ### 📚 Approach Notes
 
